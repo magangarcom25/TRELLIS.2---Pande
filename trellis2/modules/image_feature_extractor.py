@@ -60,15 +60,37 @@ class DinoV3FeatureExtractor:
     """
     Feature extractor for DINOv3 models.
     """
+    # def __init__(self, model_name: str, image_size=512):
+    #     self.model_name = model_name
+    #     # self.model = DINOv3ViTModel.from_pretrained(model_name)
+    #     self.model = DINOv3ViTModel.from_pretrained(model_name, local_files_only=True)
+    #     self.model.eval()
+    #     self.image_size = image_size
+    #     self.transform = transforms.Compose([
+    #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    #     ])
     def __init__(self, model_name: str, image_size=512):
         self.model_name = model_name
-        self.model = DINOv3ViTModel.from_pretrained(model_name)
+        from transformers import DINOv3ViTModel, DINOv3ViTConfig
+        
+        # Load config secara manual dari folder fisik
+        config = DINOv3ViTConfig.from_pretrained(model_name, local_files_only=True)
+        
+        # Load model TANPA menggunakan .from_pretrained (Ini kuncinya!)
+        # Kita buat objek model kosong dulu, lalu masukkan isinya manual
+        self.model = DINOv3ViTModel(config)
+        
+        # Cari file bobot (weights) di folder tersebut
+        import os
+        weight_path = os.path.join(model_name, "model.safetensors")
+        
+        # Masukkan bobot secara manual
+        from safetensors.torch import load_file
+        state_dict = load_file(weight_path)
+        self.model.load_state_dict(state_dict)
+        
         self.model.eval()
         self.image_size = image_size
-        self.transform = transforms.Compose([
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-
     def to(self, device):
         self.model.to(device)
 

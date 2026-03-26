@@ -139,24 +139,39 @@ class SLat(SLatVisMixin, StandardDatasetBase):
       
     def filter_metadata(self, metadata):
         stats = {}
-        metadata = metadata[metadata[f'{self.latent_key}_encoded'] == True]
+        # Hapus/Komentari filter 'encoded' jika kamu belum melakukan pra-proses encoding
+        # metadata = metadata[metadata[f'{self.latent_key}_encoded'] == True] 
+        
         stats['With latent'] = len(metadata)
+        
+        # Ubah min_aesthetic_score menjadi 0.0 atau -1.0 di config agar data tidak terbuang
         metadata = metadata[metadata['aesthetic_score'] >= self.min_aesthetic_score]
         stats[f'Aesthetic score >= {self.min_aesthetic_score}'] = len(metadata)
+        
         metadata = metadata[metadata[f'{self.latent_key}_tokens'] <= self.max_tokens]
         stats[f'Num tokens <= {self.max_tokens}'] = len(metadata)
         return metadata, stats
 
     def get_instance(self, root, instance):
-        data = np.load(os.path.join(root[self.latent_key], f'{instance}.npz'))
-        coords = torch.tensor(data['coords']).int()
-        feats = torch.tensor(data['feats']).float()
-        if self.normalization is not None:
-            feats = (feats - self.mean) / self.std
-        return {
-            'coords': coords,
-            'feats': feats,
-        }
+        # Gunakan path langsung untuk menghindari masalah os.path.join
+        fixed_dir = "/home/pande/TRELLIS.2---Pande/datasets/sslat/shape_latents/shape_enc_next_dc_f16c32_fp16_1024"
+        full_path = f"{fixed_dir}/{instance}.npz"
+        
+        try:
+            # Membuka file secara manual dengan 'rb' (read binary)
+            with open(full_path, 'rb') as f:
+                data = np.load(f)
+                # Ambil data dan konversi ke tensor
+                return {
+                    'coords': torch.from_numpy(data['coords']).int(),
+                    'feats': torch.from_numpy(data['feats']).float(),
+                }
+        except Exception as e:
+            # Menampilkan pesan error yang jelas jika file gagal dibuka
+            print(f"\n[FATAL ERROR] Gagal memuat file: {full_path}")
+            print(f"Pesan Error: {e}")
+            # Raise e agar berhenti di sini dan tidak loop di components.py
+            raise e
         
     @staticmethod
     def collate_fn(batch, split_size=None):

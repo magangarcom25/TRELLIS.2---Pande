@@ -24,8 +24,22 @@ def _install_blender():
         os.system(f'tar -xvf {BLENDER_INSTALLATION_PATH}/blender-4.5.1-linux-x64.tar.xz -C {BLENDER_INSTALLATION_PATH}')
 
 
-def _dump_mesh(file_path, metadatum, root):
+def _dump_mesh(download_root, metadatum, root):
     sha256 = metadatum['sha256']
+    name = metadatum['relative_path']
+    # --- PERBAIKAN: Mencari model di dalam subfolder ---
+    # Coba jalur subfolder (dataset kamu: GaneshaXX/model.glb)
+    file_path = os.path.join(download_root, name, "model.glb")
+    
+    if not os.path.exists(file_path):
+        # Jika gagal, coba jalur langsung (GaneshaXX.glb)
+        file_path = os.path.join(download_root, f"{name}.glb")
+        
+    if not os.path.exists(file_path):
+        # Jika masih gagal, coba jalur .obj
+        file_path = os.path.join(download_root, f"{name}.obj")
+    # -------------------------------------------------------
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         temp_path = os.path.join(tmp_dir, f'{sha256}.pickle')
         output_path = os.path.join(root, 'mesh_dumps', f'{sha256}.pickle')
@@ -52,7 +66,7 @@ def _dump_mesh(file_path, metadatum, root):
                 raise ValueError(f'Failed to dump mesh. File {file_path}.')
 
 if __name__ == '__main__':
-    dataset_utils = importlib.import_module(f'datasets.{sys.argv[1]}')
+    dataset_utils = importlib.import_module(f'trellis2.datasets.{sys.argv[1]}')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', type=str, required=True,
@@ -65,7 +79,7 @@ if __name__ == '__main__':
                         help='Filter objects with aesthetic score lower than this value')
     parser.add_argument('--instances', type=str, default=None,
                         help='Instances to process')
-    dataset_utils.add_args(parser)
+    dataset_utils.get_args(parser)
     parser.add_argument('--rank', type=int, default=0)
     parser.add_argument('--world_size', type=int, default=1)
     parser.add_argument('--max_workers', type=int, default=0)
@@ -92,7 +106,7 @@ if __name__ == '__main__':
         metadata = metadata.combine_first(pd.read_csv(os.path.join(opt.mesh_dump_root, 'mesh_dumps', 'metadata.csv')).set_index('sha256'))
     metadata = metadata.reset_index()
     if opt.instances is None:
-        metadata = metadata[metadata['local_path'].notna()]
+        metadata = metadata[metadata['relative_path'].notna()]
         if opt.filter_low_aesthetic_score is not None:
             metadata = metadata[metadata['aesthetic_score'] >= opt.filter_low_aesthetic_score]
         if 'mesh_dumped' in metadata.columns:
@@ -122,6 +136,16 @@ if __name__ == '__main__':
 
     # process objects
     func = partial(_dump_mesh, root=opt.mesh_dump_root)
-    mesh_dumped = dataset_utils.foreach_instance(metadata, opt.download_root, func, max_workers=opt.max_workers, desc='Dumping mesh')
+    
+    from tqdm import tqdm
+    import pandas as pd
+
+    results = []
+    for i, row in tqdm(metadata.iterrows(), total=len(metadata), desc='Dumping mesh'):
+        res = func(opt.download_root, row)
+        results.append(res)
+
+    mesh_dumped = pd.DataFrame(results)
+    
     mesh_dumped = pd.concat([mesh_dumped, pd.DataFrame.from_records(records)])
     mesh_dumped.to_csv(os.path.join(opt.mesh_dump_root, 'mesh_dumps', 'new_records', f'part_{opt.rank}.csv'), index=False)

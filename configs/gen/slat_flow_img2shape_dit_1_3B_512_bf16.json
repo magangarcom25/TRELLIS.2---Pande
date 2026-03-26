@@ -24,7 +24,7 @@
         "args": {
             "resolution": 512,
             "image_size": 512,
-            "min_aesthetic_score": 4.5,
+            "min_aesthetic_score": 0.0,
             "max_tokens": 8192,
             "normalization": {
                 "mean": [
@@ -47,7 +47,7 @@
         "name": "ImageConditionedSparseFlowMatchingCFGTrainer",
         "args": {
             "max_steps": 1000000,
-            "batch_size_per_gpu": 8,
+            "batch_size_per_gpu": 2,
             "batch_split": 2,
             "optimizer": {
                 "name": "AdamW",

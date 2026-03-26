@@ -66,13 +66,14 @@ class StandardDatasetBase(Dataset):
     def __len__(self):
         return len(self.instances)
 
-    def __getitem__(self, index) -> Dict[str, Any]:
+    def __getitem__(self, idx):
+        root, instance = self.instances[idx]
         try:
-            root, instance = self.instances[index]
             return self.get_instance(root, instance)
         except Exception as e:
-            print(f'Error loading {instance}: {e}')
-            return self.__getitem__(np.random.randint(0, len(self)))
+            # HANYA PRINT, JANGAN RECURSION
+            print(f'CRITICAL ERROR pada {instance}: {e}')
+            raise e
         
     def __str__(self):
         lines = []
@@ -99,8 +100,17 @@ class ImageConditionedMixin:
     
     def get_instance(self, root, instance):
         pack = super().get_instance(root, instance)
-       
-        image_root = os.path.join(root['render_cond'], instance)
+        
+        # PERBAIKAN DI SINI:
+        # Cek apakah root itu dictionary atau cuma string path
+        if isinstance(root, dict) and 'render_cond' in root:
+            base_render_path = root['render_cond']
+        else:
+            # Jika root adalah string, kita asumsikan folder render ada di dalam folder yang sama
+            # Atau kita arahkan ke folder dataset ganesha kamu
+            base_render_path = "/home/pande/TRELLIS.2---Pande/datasets/Ganesha_Dataset"
+
+        image_root = os.path.join(base_render_path, instance)
         with open(os.path.join(image_root, 'transforms.json')) as f:
             metadata = json.load(f)
         n_views = len(metadata['frames'])

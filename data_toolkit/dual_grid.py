@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.insert(0, os.path.join(os.getcwd(), 'trellis2'))
 import importlib
 import argparse
 import pandas as pd
@@ -86,7 +87,7 @@ def _dual_grid_mesh(file, metadatum, mesh_dump_root, root):
 
 
 if __name__ == '__main__':
-    dataset_utils = importlib.import_module(f'datasets.{sys.argv[1]}')
+    dataset_utils = importlib.import_module(f'trellis2.datasets.{sys.argv[1]}')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', type=str, required=True,
@@ -99,14 +100,17 @@ if __name__ == '__main__':
                         help='Filter objects with aesthetic score lower than this value')
     parser.add_argument('--instances', type=str, default=None,
                         help='Instances to process')
-    dataset_utils.add_args(parser)
+    dataset_utils.get_args(parser)
     parser.add_argument('--rank', type=int, default=0)
     parser.add_argument('--resolution', type=str, default=256)
     parser.add_argument('--world_size', type=int, default=1)
     parser.add_argument('--max_workers', type=int, default=0)
     opt = parser.parse_args(sys.argv[2:])
     opt = edict(vars(opt))
-    opt.resolution = [int(x) for x in opt.resolution.split(',')]
+    if isinstance(opt.resolution, str):
+        opt.resolution = [int(x) for x in opt.resolution.split(',')]
+    elif isinstance(opt.resolution, int):
+        opt.resolution = [opt.resolution]
     opt.mesh_dump_root = opt.mesh_dump_root or opt.root
     opt.dual_grid_root = opt.dual_grid_root or opt.root
 
@@ -154,8 +158,20 @@ if __name__ == '__main__':
     print(f'Processing {len(metadata)} objects...')
 
     # process objects
+    # process objects
     func = partial(_dual_grid_mesh, root=opt.dual_grid_root, mesh_dump_root=opt.mesh_dump_root)
-    dual_grids = dataset_utils.foreach_instance(metadata, None, func, max_workers=opt.max_workers, no_file=True, desc='Dual griding')
+    
+    from tqdm import tqdm
+    import pandas as pd # Pastikan pandas di-import
+    
+    results_list = []
+    for i, row in tqdm(metadata.iterrows(), total=len(metadata), desc='Dual griding'):
+        res = func(None, row) # Harus menjorok ke dalam (4 spasi)
+        results_list.append(res) # Harus menjorok ke dalam (4 spasi)
+    
+    # Ubah list menjadi DataFrame agar kode di bawahnya tidak rusak
+    dual_grids = pd.DataFrame(results_list)
+    
     if 'error' in dual_grids.columns:
         errors = dual_grids[dual_grids[f'error'].notna()]
         with open('errors.txt', 'w') as f:

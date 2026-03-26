@@ -1,0 +1,50 @@
+{
+    "models": {
+        "slat": {
+            "name": "SparseStructureFlowModel",
+            "args": { 
+                "resolution": 16,
+                "in_channels": 32,
+                "model_channels": 1536,
+                "out_channels": 32,
+                "num_blocks": 64,
+                "num_heads": 24,
+                "head_dim": 64,
+                "cond_channels": 1024
+            }
+        },
+        "image_cond_model": {
+            "name": "dinov2", 
+            "args": { "model_type": "dinov2_vitl14" }
+        }
+    },
+    "dataset": {
+        "name": "ImageConditionedSLat",
+        "args": {
+            "roots": "./datasets/Ganesha_Dataset"
+        }
+    },
+    "trainer": {
+        "name": "ImageConditionedSparseFlowMatchingCFGTrainer",
+        "args": {
+            "use_cfg": false,
+            "max_steps": 5000,
+            "batch_size": 1,
+            "accumulate_grad_batches": 8,
+            "i_print": 1,
+            "i_log": 10,
+            "i_sample": 1000,
+            "i_save": 1000,
+            "fp16_mode": "bf16",
+            "ema_rate": [], 
+            "optimizer": {
+                "name": "AdamW",
+                "args": { 
+                    "lr": 5e-05, 
+                    "weight_decay": 0.01 
+                }
+            },
+            "grad_clip": 1.0
+        }
+    }
+}

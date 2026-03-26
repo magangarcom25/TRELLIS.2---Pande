@@ -11,7 +11,6 @@ __all__ = [
     'SparseLayerNorm32',
 ]
 
-
 class SparseGroupNorm(nn.GroupNorm):
     def __init__(self, num_groups, num_channels, eps=1e-5, affine=True):
         super(SparseGroupNorm, self).__init__(num_groups, num_channels, eps, affine)
@@ -25,7 +24,6 @@ class SparseGroupNorm(nn.GroupNorm):
             bfeats = bfeats.reshape(input.shape[1], -1).permute(1, 0)
             nfeats[input.layout[k]] = bfeats
         return input.replace(nfeats)
-
 
 class SparseLayerNorm(nn.LayerNorm):
     def __init__(self, normalized_shape, eps=1e-5, elementwise_affine=True):
@@ -41,24 +39,18 @@ class SparseLayerNorm(nn.LayerNorm):
             nfeats[input.layout[k]] = bfeats
         return input.replace(nfeats)
 
-
 class SparseGroupNorm32(SparseGroupNorm):
     """
-    A GroupNorm layer that converts to float32 before the forward pass.
+    MODIFIED BY PANDE: Removed float32 casting to save VRAM.
     """
     def forward(self, x: VarLenTensor) -> VarLenTensor:
-        x_dtype = x.dtype
-        x = manual_cast(x, torch.float32)
-        o = super().forward(x)
-        return manual_cast(o, x_dtype)
-
+        # Kita lewati manual_cast ke float32
+        return super().forward(x)
 
 class SparseLayerNorm32(SparseLayerNorm):
     """
-    A LayerNorm layer that converts to float32 before the forward pass.
+    MODIFIED BY PANDE: Removed float32 casting to save VRAM.
     """
     def forward(self, x: VarLenTensor) -> VarLenTensor:
-        x_dtype = x.dtype
-        x = manual_cast(x, torch.float32)
-        o = super().forward(x)
-        return manual_cast(o, x_dtype)
+        # Kita lewati manual_cast ke float32
+        return super().forward(x)

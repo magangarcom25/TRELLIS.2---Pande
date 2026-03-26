@@ -10,7 +10,6 @@ from ..modules import sparse as sp
 from ..modules.sparse.transformer import ModulatedSparseTransformerCrossBlock
 from .sparse_structure_flow import TimestepEmbedder
 from .sparse_elastic_mixin import SparseTransformerElasticMixin
-    
 
 class SLatFlowModel(nn.Module):
     def __init__(
@@ -26,7 +25,7 @@ class SLatFlowModel(nn.Module):
         mlp_ratio: float = 4,
         pe_mode: Literal["ape", "rope"] = "ape",
         rope_freq: Tuple[float, float] = (1.0, 10000.0),
-        dtype: str = 'float32',
+        dtype: str = 'bfloat16',
         use_checkpoint: bool = False,
         share_mod: bool = False,
         initialization: str = 'vanilla',
@@ -48,7 +47,8 @@ class SLatFlowModel(nn.Module):
         self.initialization = initialization
         self.qk_rms_norm = qk_rms_norm
         self.qk_rms_norm_cross = qk_rms_norm_cross
-        self.dtype = str_to_dtype(dtype)
+        
+        self.dtype = torch.bfloat16 
 
         self.t_embedder = TimestepEmbedder(model_channels)
         if share_mod:
@@ -82,37 +82,35 @@ class SLatFlowModel(nn.Module):
         self.out_layer = sp.SparseLinear(model_channels, out_channels)
 
         self.initialize_weights()
-        self.convert_to(self.dtype)
+        # Inisialisasi awal ke BF16
+        self.to(torch.bfloat16)
+        
+        # --- KHUSUS V6.8: Kembalikan t_embedder ke Float32 agar stabil ---
+        self.t_embedder.to(torch.float32)
 
     @property
     def device(self) -> torch.device:
-        """
-        Return the device of the model.
-        """
         return next(self.parameters()).device
 
     def convert_to(self, dtype: torch.dtype) -> None:
-        """
-        Convert the torso of the model to the specified dtype.
-        """
         self.dtype = dtype
+        for module in self.modules():
+            if isinstance(module, (nn.Linear, nn.Conv1d, nn.LayerNorm, sp.SparseLinear)):
+                module.to(dtype)
         self.blocks.apply(partial(convert_module_to, dtype=dtype))
+        # Pastikan t_embedder tetap di float32
+        self.t_embedder.to(torch.float32)
 
     def initialize_weights(self) -> None:
         if self.initialization == 'vanilla':
-            # Initialize transformer layers:
             def _basic_init(module):
-                if isinstance(module, nn.Linear):
+                if isinstance(module, (nn.Linear, sp.SparseLinear)):
                     torch.nn.init.xavier_uniform_(module.weight)
-                    if module.bias is not None:
+                    if hasattr(module, 'bias') and module.bias is not None:
                         nn.init.constant_(module.bias, 0)
             self.apply(_basic_init)
-
-            # Initialize timestep embedding MLP:
             nn.init.normal_(self.t_embedder.mlp[0].weight, std=0.02)
             nn.init.normal_(self.t_embedder.mlp[2].weight, std=0.02)
-
-            # Zero-out adaLN modulation layers in DiT blocks:
             if self.share_mod:
                 nn.init.constant_(self.adaLN_modulation[-1].weight, 0)
                 nn.init.constant_(self.adaLN_modulation[-1].bias, 0)
@@ -120,49 +118,6 @@ class SLatFlowModel(nn.Module):
                 for block in self.blocks:
                     nn.init.constant_(block.adaLN_modulation[-1].weight, 0)
                     nn.init.constant_(block.adaLN_modulation[-1].bias, 0)
-
-            # Zero-out output layers:
-            nn.init.constant_(self.out_layer.weight, 0)
-            nn.init.constant_(self.out_layer.bias, 0)
-            
-        elif self.initialization == 'scaled':
-            # Initialize transformer layers:
-            def _basic_init(module):
-                if isinstance(module, nn.Linear):
-                    torch.nn.init.normal_(module.weight, std=np.sqrt(2.0 / (5.0 * self.model_channels)))
-                    if module.bias is not None:
-                        nn.init.constant_(module.bias, 0)
-            self.apply(_basic_init)
-            
-            # Scaled init for to_out and ffn2
-            def _scaled_init(module):
-                if isinstance(module, nn.Linear):
-                    torch.nn.init.normal_(module.weight, std=1.0 / np.sqrt(5 * self.num_blocks * self.model_channels))
-                    if module.bias is not None:
-                        nn.init.constant_(module.bias, 0)
-            for block in self.blocks:
-                block.self_attn.to_out.apply(_scaled_init)
-                block.cross_attn.to_out.apply(_scaled_init)
-                block.mlp.mlp[2].apply(_scaled_init)
-            
-            # Initialize input layer to make the initial representation have variance 1
-            nn.init.normal_(self.input_layer.weight, std=1.0 / np.sqrt(self.in_channels))
-            nn.init.zeros_(self.input_layer.bias)
-            
-            # Initialize timestep embedding MLP:
-            nn.init.normal_(self.t_embedder.mlp[0].weight, std=0.02)
-            nn.init.normal_(self.t_embedder.mlp[2].weight, std=0.02)
-            
-            # Zero-out adaLN modulation layers in DiT blocks:
-            if self.share_mod:
-                nn.init.constant_(self.adaLN_modulation[-1].weight, 0)
-                nn.init.constant_(self.adaLN_modulation[-1].bias, 0)
-            else:
-                for block in self.blocks:
-                    nn.init.constant_(block.adaLN_modulation[-1].weight, 0)
-                    nn.init.constant_(block.adaLN_modulation[-1].bias, 0)
-
-            # Zero-out output layers:
             nn.init.constant_(self.out_layer.weight, 0)
             nn.init.constant_(self.out_layer.bias, 0)
 
@@ -170,38 +125,58 @@ class SLatFlowModel(nn.Module):
         self,
         x: sp.SparseTensor,
         t: torch.Tensor,
-        cond: Union[torch.Tensor, List[torch.Tensor]],
+        cond: Union[torch.Tensor, List[torch.Tensor], Dict],
         concat_cond: Optional[sp.SparseTensor] = None,
         **kwargs
     ) -> sp.SparseTensor:
-        if concat_cond is not None:
-            x = sp.sparse_cat([x, concat_cond], dim=-1)
-        if isinstance(cond, list):
-            cond = sp.VarLenTensor.from_tensor_list(cond)
+        # --- SURGERY V6.8: HYBRID BF16/FP32 PROTOCOL ---
+        target_dtype = torch.bfloat16
+        
+        # 1. Pastikan model utama tetap di BF16
+        if self.input_layer.weight.dtype != target_dtype:
+            self.to(target_dtype)
+            self.t_embedder.to(torch.float32) # Selalu paksa t_embedder kembali ke FP32
 
+        # 2. Paksa input Tensor ke BF16
+        x = x.replace(x.feats.to(target_dtype))
+        
+        # 3. Conditioning Cleanup
+        if isinstance(cond, list):
+            cond = [c.to(target_dtype) for c in cond]
+            cond = sp.VarLenTensor.from_tensor_list(cond)
+        elif isinstance(cond, dict):
+            cond = {k: v.to(target_dtype) if isinstance(v, torch.Tensor) else v for k, v in cond.items()}
+        elif isinstance(cond, torch.Tensor):
+            cond = cond.to(target_dtype)
+
+        # 4. Input Layer
         h = self.input_layer(x)
-        h = manual_cast(h, self.dtype)
-        t_emb = self.t_embedder(t)
+        
+        # 5. Timestep Embedding (DUNIA FLOAT32)
+        # Kita hitung di Float32, lalu paksa hasilnya ke BF16
+        t_emb = self.t_embedder(t.float()).to(target_dtype)
+        
         if self.share_mod:
             t_emb = self.adaLN_modulation(t_emb)
-        t_emb = manual_cast(t_emb, self.dtype)
-        cond = manual_cast(cond, self.dtype)
+            t_emb = t_emb.to(target_dtype)
 
+        # 6. Position Embedding
         if self.pe_mode == "ape":
             pe = self.pos_embedder(h.coords[:, 1:])
-            h = h + manual_cast(pe, self.dtype)
+            h = h + pe.to(target_dtype)
+            
+        # 7. Transformer Blocks (DUNIA BFLOAT16 + FlashAttention)
         for block in self.blocks:
             h = block(h, t_emb, cond)
 
-        h = manual_cast(h, x.dtype)
-        h = h.replace(F.layer_norm(h.feats, h.feats.shape[-1:]))
+        # 8. Final Normalization & Output
+        h_feats = h.feats.to(target_dtype)
+        h_feats = F.layer_norm(h_feats, h_feats.shape[-1:])
+        h = h.replace(h_feats)
+        
         h = self.out_layer(h)
+            
         return h
 
-
 class ElasticSLatFlowModel(SparseTransformerElasticMixin, SLatFlowModel):
-    """
-    SLat Flow Model with elastic memory management.
-    Used for training with low VRAM.
-    """
     pass

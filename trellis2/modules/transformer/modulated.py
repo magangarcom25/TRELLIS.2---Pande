@@ -5,11 +5,25 @@ from ..attention import MultiHeadAttention
 from ..norm import LayerNorm32
 from .blocks import FeedForwardNet
 
+def force_sync_batch(x, h):
+    """
+    Memastikan x memiliki jumlah token yang sama dengan h.
+    Penting untuk menangani lonjakan batch size saat Classifier-Free Guidance (CFG).
+    """
+    if x.shape[0] == h.shape[0]:
+        return x
+    
+    # Jika h adalah hasil CFG (2x lipat x), kita duplikasi x
+    if h.shape[0] == 2 * x.shape[0]:
+        import trellis2.modules.sparse as sp_root
+        # Kita gunakan metode replace_feats untuk menjaga struktur koordinat sparse
+        # tapi menggandakan jumlah datanya
+        x_doubled = sp_root.sparse_cat([x, x])
+        return x_doubled
+    
+    return x
 
 class ModulatedTransformerBlock(nn.Module):
-    """
-    Transformer block (MSA + FFN) with adaptive layer norm conditioning.
-    """
     def __init__(
         self,
         channels: int,
@@ -58,15 +72,23 @@ class ModulatedTransformerBlock(nn.Module):
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (self.modulation + mod).type(mod.dtype).chunk(6, dim=1)
         else:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.adaLN_modulation(mod).chunk(6, dim=1)
+        
         h = self.norm1(x)
         h = h * (1 + scale_msa.unsqueeze(1)) + shift_msa.unsqueeze(1)
         h = self.attn(h, phases=phases)
         h = h * gate_msa.unsqueeze(1)
+        
+        # Penjumlahan 1
+        x = force_sync_batch(x, h)
         x = x + h
+
         h = self.norm2(x)
         h = h * (1 + scale_mlp.unsqueeze(1)) + shift_mlp.unsqueeze(1)
         h = self.mlp(h)
         h = h * gate_mlp.unsqueeze(1)
+        
+        # Penjumlahan 2
+        x = force_sync_batch(x, h)
         x = x + h
         return x
 
@@ -78,9 +100,6 @@ class ModulatedTransformerBlock(nn.Module):
 
 
 class ModulatedTransformerCrossBlock(nn.Module):
-    """
-    Transformer cross-attention block (MSA + MCA + FFN) with adaptive layer norm conditioning.
-    """
     def __init__(
         self,
         channels: int,
@@ -142,18 +161,31 @@ class ModulatedTransformerCrossBlock(nn.Module):
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (self.modulation + mod).type(mod.dtype).chunk(6, dim=1)
         else:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.adaLN_modulation(mod).chunk(6, dim=1)
+        
+        # 1. Self Attention
         h = self.norm1(x)
         h = h * (1 + scale_msa.unsqueeze(1)) + shift_msa.unsqueeze(1)
         h = self.self_attn(h, phases=phases)
         h = h * gate_msa.unsqueeze(1)
+        
+        x = force_sync_batch(x, h)
         x = x + h
+
+        # 2. Cross Attention
         h = self.norm2(x)
+        h = h * (1 + 0) # Identitas placeholder
         h = self.cross_attn(h, context)
+        
+        x = force_sync_batch(x, h)
         x = x + h
+
+        # 3. MLP
         h = self.norm3(x)
         h = h * (1 + scale_mlp.unsqueeze(1)) + shift_mlp.unsqueeze(1)
         h = self.mlp(h)
         h = h * gate_mlp.unsqueeze(1)
+        
+        x = force_sync_batch(x, h)
         x = x + h
         return x
 
@@ -162,4 +194,3 @@ class ModulatedTransformerCrossBlock(nn.Module):
             return torch.utils.checkpoint.checkpoint(self._forward, x, mod, context, phases, use_reentrant=False)
         else:
             return self._forward(x, mod, context, phases)
-        

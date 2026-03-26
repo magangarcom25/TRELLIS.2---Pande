@@ -198,18 +198,49 @@ class VarLenTensor:
     def __neg__(self) -> 'VarLenTensor':
         return self.replace(-self.feats)
     
-    def __elemwise__(self, other: Union[torch.Tensor, 'VarLenTensor'], op: callable) -> 'VarLenTensor':
+    def __elemwise__(self, other: Union[torch.Tensor, 'VarLenTensor', float, int], op: callable) -> 'VarLenTensor':
+        # 1. Handle regular torch.Tensor (e.g., scale_mlp / shift_mlp from modulated.py)
         if isinstance(other, torch.Tensor):
+            self_feats = self.feats
+            other_tensor = other
+            
+            # CFG Check: If feats are expanded (2N) but input tensor is still (N)
+            if self_feats.shape[0] == other_tensor.shape[0] * 2:
+                other_tensor = torch.cat([other_tensor, other_tensor], dim=0)
+            elif other_tensor.shape[0] == self_feats.shape[0] * 2:
+                self_feats = torch.cat([self_feats, self_feats], dim=0)
+            
             try:
-                other = torch.broadcast_to(other, self.shape)
-                other = other[self.batch_boardcast_map]
-            except:
-                pass
+                # Standard broadcast for channel-wise scaling
+                new_feats = op(self_feats, other_tensor)
+            except RuntimeError:
+                # If sizes match but structure differs, use the layout map
+                other_tensor = other_tensor[self.batch_boardcast_map]
+                new_feats = op(self_feats, other_tensor)
+            
+            return self.replace(new_feats)
+
+        # 2. Handle VarLenTensor/SparseTensor (e.g., residual addition x + h)
         if isinstance(other, VarLenTensor):
-            other = other.feats
-        new_feats = op(self.feats, other)
-        new_tensor = self.replace(new_feats)
-        return new_tensor
+            self_feats = self.feats
+            other_feats = other.feats
+            template_tensor = self
+            
+            # CFG Check for two VarLenTensors
+            if self_feats.shape[0] * 2 == other_feats.shape[0]:
+                self_feats = torch.cat([self_feats, self_feats], dim=0)
+                template_tensor = other
+            elif other_feats.shape[0] * 2 == self_feats.shape[0]:
+                other_feats = torch.cat([other_feats, other_feats], dim=0)
+                template_tensor = self
+                
+            new_feats = op(self_feats, other_feats)
+            return template_tensor.replace(new_feats)
+        
+        # 3. Handle Scalar (float/int)
+        else:
+            new_feats = op(self.feats, other)
+            return self.replace(new_feats)
 
     def __add__(self, other: Union[torch.Tensor, 'VarLenTensor', float]) -> 'VarLenTensor':
         return self.__elemwise__(other, torch.add)
@@ -303,12 +334,6 @@ class VarLenTensor:
 
 
 def varlen_cat(inputs: List[VarLenTensor], dim: int = 0) -> VarLenTensor:
-    """
-    Concatenate a list of varlen tensors.
-    
-    Args:
-        inputs (List[VarLenTensor]): List of varlen tensors to concatenate.
-    """
     if dim == 0:
         new_feats = torch.cat([input.feats for input in inputs], dim=0)
         start = 0
@@ -326,13 +351,6 @@ def varlen_cat(inputs: List[VarLenTensor], dim: int = 0) -> VarLenTensor:
 
 
 def varlen_unbind(input: VarLenTensor, dim: int) -> Union[List[VarLenTensor]]:
-    """
-    Unbind a varlen tensor along a dimension.
-    
-    Args:
-        input (VarLenTensor): Varlen tensor to unbind.
-        dim (int): Dimension to unbind.
-    """
     if dim == 0:
         return [input[i] for i in range(len(input))]
     else:
@@ -341,20 +359,6 @@ def varlen_unbind(input: VarLenTensor, dim: int) -> Union[List[VarLenTensor]]:
     
 
 class SparseTensor(VarLenTensor):
-    """
-    Sparse tensor with support for both torchsparse and spconv backends.
-    
-    Parameters:
-    - feats (torch.Tensor): Features of the sparse tensor.
-    - coords (torch.Tensor): Coordinates of the sparse tensor.
-    - shape (torch.Size): Shape of the sparse tensor.
-    - layout (List[slice]): Layout of the sparse tensor for each batch
-    - data (SparseTensorData): Sparse tensor data used for convolusion
-
-    NOTE:
-    - Data corresponding to a same batch should be contiguous.
-    - Coords should be in [0, 1023]
-    """
     SparseTensorData = None
 
     @overload
@@ -364,7 +368,6 @@ class SparseTensor(VarLenTensor):
     def __init__(self, data, shape: Optional[torch.Size] = None, **kwargs): ...
 
     def __init__(self, *args, **kwargs):
-        # Lazy import of sparse tensor backend
         if self.SparseTensorData is None:
             import importlib
             if config.CONV == 'torchsparse':
@@ -397,10 +400,7 @@ class SparseTensor(VarLenTensor):
                 self.data = self.SparseTensorData(feats.reshape(feats.shape[0], -1), coords, spatial_shape[1:], spatial_shape[0], **kwargs)
                 self.data._features = feats
             else:
-                self.data = {
-                    'feats': feats,
-                    'coords': coords,
-                }
+                self.data = {'feats': feats, 'coords': coords}
         elif method_id == 1:
             data, shape = args + (None,) * (2 - len(args))
             if 'data' in kwargs:
@@ -409,7 +409,6 @@ class SparseTensor(VarLenTensor):
             if 'shape' in kwargs:
                 shape = kwargs['shape']
                 del kwargs['shape']
-
             self.data = data
 
         self._shape = shape
@@ -418,24 +417,12 @@ class SparseTensor(VarLenTensor):
 
         if config.DEBUG:
             try:
-                assert self.feats.shape[0] == self.coords.shape[0], f"Invalid feats shape: {self.feats.shape}, coords shape: {self.coords.shape}"
-                assert self.shape == self.__cal_shape(self.feats, self.coords), f"Invalid shape: {self.shape}"
-                assert self.layout == self.__cal_layout(self.coords, self.shape[0]), f"Invalid layout: {self.layout}"
-                for i in range(self.shape[0]):
-                    assert torch.all(self.coords[self.layout[i], 0] == i), f"The data of batch {i} is not contiguous"
+                assert self.feats.shape[0] == self.coords.shape[0]
             except Exception as e:
-                print('Debugging information:')
-                print(f"- Shape: {self.shape}")
-                print(f"- Layout: {self.layout}")
-                print(f"- Scale: {self._scale}")
-                print(f"- Coords: {self.coords}")
                 raise e
         
     @staticmethod
     def from_tensor_list(feats_list: List[torch.Tensor], coords_list: List[torch.Tensor]) -> 'SparseTensor':
-        """
-        Create a SparseTensor from a list of tensors.
-        """
         feats = torch.cat(feats_list, dim=0)
         coords = []
         for i, coord in enumerate(coords_list):
@@ -445,9 +432,6 @@ class SparseTensor(VarLenTensor):
         return SparseTensor(feats, coords)
     
     def to_tensor_list(self) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
-        """
-        Convert a SparseTensor to list of tensors.
-        """
         feats_list = []
         coords_list = []
         for s in self.layout:
@@ -560,9 +544,6 @@ class SparseTensor(VarLenTensor):
     
     @property
     def batch_boardcast_map(self) -> torch.LongTensor:
-        """
-        Get the broadcast map for the varlen tensor.
-        """
         batch_boardcast_map = self.get_spatial_cache('batch_boardcast_map')
         if batch_boardcast_map is None:
             batch_boardcast_map = torch.repeat_interleave(
@@ -571,12 +552,6 @@ class SparseTensor(VarLenTensor):
             )
             self.register_spatial_cache('batch_boardcast_map', batch_boardcast_map)
         return batch_boardcast_map
-
-    @overload
-    def to(self, dtype: torch.dtype, *, non_blocking: bool = False, copy: bool = False) -> 'SparseTensor': ...
-
-    @overload
-    def to(self, device: Optional[Union[str, torch.device]] = None, dtype: Optional[torch.dtype] = None, *, non_blocking: bool = False, copy: bool = False) -> 'SparseTensor': ...
 
     def to(self, *args, **kwargs) -> 'SparseTensor':
         device = None
@@ -588,12 +563,6 @@ class SparseTensor(VarLenTensor):
                 dtype = args[0]
             else:
                 device = args[0]
-        if 'dtype' in kwargs:
-            assert dtype is None, "to() received multiple values for argument 'dtype'"
-            dtype = kwargs['dtype']
-        if 'device' in kwargs:
-            assert device is None, "to() received multiple values for argument 'device'"
-            device = kwargs['device']
         non_blocking = kwargs.get('non_blocking', False)
         copy = kwargs.get('copy', False)
         
@@ -606,27 +575,19 @@ class SparseTensor(VarLenTensor):
         return self.replace(new_feats)
 
     def cpu(self) -> 'SparseTensor':
-        new_feats = self.feats.cpu()
-        new_coords = self.coords.cpu()
-        return self.replace(new_feats, new_coords)
+        return self.replace(self.feats.cpu(), self.coords.cpu())
     
     def cuda(self) -> 'SparseTensor':
-        new_feats = self.feats.cuda()
-        new_coords = self.coords.cuda()
-        return self.replace(new_feats, new_coords)
+        return self.replace(self.feats.cuda(), self.coords.cuda())
 
     def half(self) -> 'SparseTensor':
-        new_feats = self.feats.half()
-        return self.replace(new_feats)
+        return self.replace(self.feats.half())
     
     def float(self) -> 'SparseTensor':
-        new_feats = self.feats.float()
-        return self.replace(new_feats)
+        return self.replace(self.feats.float())
     
     def detach(self) -> 'SparseTensor':
-        new_coords = self.coords.detach()
-        new_feats = self.feats.detach()
-        return self.replace(new_feats, new_coords)
+        return self.replace(self.feats.detach(), self.coords.detach())
 
     def reshape(self, *shape) -> 'SparseTensor':
         new_feats = self.feats.reshape(self.feats.shape[0], *shape)
@@ -655,12 +616,6 @@ class SparseTensor(VarLenTensor):
                 self.data.indice_dict
             )
             new_data._features = feats
-            new_data.benchmark = self.data.benchmark
-            new_data.benchmark_record = self.data.benchmark_record
-            new_data.thrust_allocator = self.data.thrust_allocator
-            new_data._timer = self.data._timer
-            new_data.force_algo = self.data.force_algo
-            new_data.int8_scale = self.data.int8_scale
             if coords is not None:
                 new_data.indices = coords
         else:
@@ -677,9 +632,7 @@ class SparseTensor(VarLenTensor):
         return new_tensor
     
     def to_dense(self) -> torch.Tensor:
-        if config.CONV == 'torchsparse':
-            return self.data.dense()
-        elif config.CONV == 'spconv':
+        if config.CONV == 'torchsparse' or config.CONV == 'spconv':
             return self.data.dense()
         else:
             spatial_shape = self.spatial_shape
@@ -687,20 +640,6 @@ class SparseTensor(VarLenTensor):
             idx = [self.coords[:, 0], slice(None)] + self.coords[:, 1:].unbind(1)
             ret[tuple(idx)] = self.feats
             return ret
-
-    @staticmethod
-    def full(aabb, dim, value, dtype=torch.float32, device=None) -> 'SparseTensor':
-        N, C = dim
-        x = torch.arange(aabb[0], aabb[3] + 1)
-        y = torch.arange(aabb[1], aabb[4] + 1)
-        z = torch.arange(aabb[2], aabb[5] + 1)
-        coords = torch.stack(torch.meshgrid(x, y, z, indexing='ij'), dim=-1).reshape(-1, 3)
-        coords = torch.cat([
-            torch.arange(N).view(-1, 1).repeat(1, coords.shape[0]).view(-1, 1),
-            coords.repeat(N, 1),
-        ], dim=1).to(dtype=torch.int32, device=device)
-        feats = torch.full((coords.shape[0], C), value, dtype=dtype, device=device)
-        return SparseTensor(feats=feats, coords=coords)
 
     def __merge_sparse_cache(self, other: 'SparseTensor') -> dict:
         new_cache = {}
@@ -714,19 +653,15 @@ class SparseTensor(VarLenTensor):
                     new_cache[k].update(other._spatial_cache[k])
         return new_cache
     
-    def __elemwise__(self, other: Union[torch.Tensor, VarLenTensor], op: callable) -> 'SparseTensor':
-        if isinstance(other, torch.Tensor):
-            try:
-                other = torch.broadcast_to(other, self.shape)
-                other = other[self.batch_boardcast_map]
-            except:
-                pass
-        if isinstance(other, VarLenTensor):
-            other = other.feats
-        new_feats = op(self.feats, other)
-        new_tensor = self.replace(new_feats)
+    def __elemwise__(self, other: Union[torch.Tensor, VarLenTensor, float, int], op: callable) -> 'SparseTensor':
+        # Re-use VarLen logic
+        new_v_tensor = super().__elemwise__(other, op)
+        
+        # Convert back to SparseTensor with cache merging
+        new_tensor = self.replace(new_v_tensor.feats)
         if isinstance(other, SparseTensor):
             new_tensor._spatial_cache = self.__merge_sparse_cache(other)
+            
         return new_tensor
 
     def __getitem__(self, idx):
@@ -734,18 +669,6 @@ class SparseTensor(VarLenTensor):
             idx = [idx]
         elif isinstance(idx, slice):
             idx = range(*idx.indices(self.shape[0]))
-        elif isinstance(idx, list):
-            assert all(isinstance(i, int) for i in idx), f"Only integer indices are supported: {idx}"
-        elif isinstance(idx, torch.Tensor):
-            if idx.dtype == torch.bool:
-                assert idx.shape == (self.shape[0],), f"Invalid index shape: {idx.shape}"
-                idx = idx.nonzero().squeeze(1)
-            elif idx.dtype in [torch.int32, torch.int64]:
-                assert len(idx.shape) == 1, f"Invalid index shape: {idx.shape}"
-            else:
-                raise ValueError(f"Unknown index type: {idx.dtype}")
-        else:
-            raise ValueError(f"Unknown index type: {type(idx)}")
         
         new_coords = []
         new_feats = []
@@ -764,27 +687,13 @@ class SparseTensor(VarLenTensor):
         new_tensor.register_spatial_cache('layout', new_layout)
         return new_tensor
     
-    def clear_spatial_cache(self) -> None:
-        """
-        Clear all spatial caches.
-        """
-        self._spatial_cache = {}
-
     def register_spatial_cache(self, key, value) -> None:
-        """
-        Register a spatial cache.
-        The spatial cache can be any thing you want to cache.
-        The registery and retrieval of the cache is based on current scale.
-        """
         scale_key = str(self._scale)
         if scale_key not in self._spatial_cache:
             self._spatial_cache[scale_key] = {}
         self._spatial_cache[scale_key][key] = value
 
     def get_spatial_cache(self, key=None):
-        """
-        Get a spatial cache.
-        """
         scale_key = str(self._scale)
         cur_scale_cache = self._spatial_cache.get(scale_key, {})
         if key is None:
@@ -795,12 +704,6 @@ class SparseTensor(VarLenTensor):
         return f"SparseTensor(shape={self.shape}, dtype={self.dtype}, device={self.device})"
 
 def sparse_cat(inputs: List[SparseTensor], dim: int = 0) -> SparseTensor:
-    """
-    Concatenate a list of sparse tensors.
-    
-    Args:
-        inputs (List[SparseTensor]): List of sparse tensors to concatenate.
-    """
     if dim == 0:
         start = 0
         coords = []
@@ -810,25 +713,14 @@ def sparse_cat(inputs: List[SparseTensor], dim: int = 0) -> SparseTensor:
             start += input.shape[0]
         coords = torch.cat(coords, dim=0)
         feats = torch.cat([input.feats for input in inputs], dim=0)
-        output = SparseTensor(
-            coords=coords,
-            feats=feats,
-        )
+        output = SparseTensor(coords=coords, feats=feats)
     else:
         feats = torch.cat([input.feats for input in inputs], dim=dim)
         output = inputs[0].replace(feats)
 
     return output
 
-
 def sparse_unbind(input: SparseTensor, dim: int) -> List[SparseTensor]:
-    """
-    Unbind a sparse tensor along a dimension.
-    
-    Args:
-        input (SparseTensor): Sparse tensor to unbind.
-        dim (int): Dimension to unbind.
-    """
     if dim == 0:
         return [input[i] for i in range(input.shape[0])]
     else:

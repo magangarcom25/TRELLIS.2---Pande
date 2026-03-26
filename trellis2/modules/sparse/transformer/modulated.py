@@ -6,7 +6,6 @@ from ..attention import SparseMultiHeadAttention
 from ...norm import LayerNorm32
 from .blocks import SparseFeedForwardNet
 
-
 class ModulatedSparseTransformerBlock(nn.Module):
     """
     Sparse Transformer block (MSA + FFN) with adaptive layer norm conditioning.
@@ -25,6 +24,7 @@ class ModulatedSparseTransformerBlock(nn.Module):
         qk_rms_norm: bool = False,
         qkv_bias: bool = True,
         share_mod: bool = False,
+        **kwargs
     ):
         super().__init__()
         self.use_checkpoint = use_checkpoint
@@ -54,21 +54,35 @@ class ModulatedSparseTransformerBlock(nn.Module):
         else:
             self.modulation = nn.Parameter(torch.randn(6 * channels) / channels ** 0.5)
 
-    def _forward(self, x: SparseTensor, mod: torch.Tensor) -> SparseTensor:
+    def _forward(self, x: SparseTensor, mod: torch.Tensor, context: Optional[torch.Tensor] = None) -> SparseTensor:
+        orig_dtype = x.feats.dtype
+        
         if self.share_mod:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (self.modulation + mod).type(mod.dtype).chunk(6, dim=1)
         else:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.adaLN_modulation(mod).chunk(6, dim=1)
-        h = x.replace(self.norm1(x.feats))
+            
+        shift_msa, scale_msa, gate_msa = shift_msa.to(orig_dtype), scale_msa.to(orig_dtype), gate_msa.to(orig_dtype)
+        shift_mlp, scale_mlp, gate_mlp = shift_mlp.to(orig_dtype), scale_mlp.to(orig_dtype), gate_mlp.to(orig_dtype)
+
+        # SURGERY: Remove .float() to save VRAM
+        h_feats = self.norm1(x.feats).to(orig_dtype)
+        h = x.replace(h_feats)
+        
         h = h * (1 + scale_msa) + shift_msa
-        h = self.attn(h)
+        h = self.attn(h, context=context) if context is not None else self.attn(h)
         h = h * gate_msa
         x = x + h
-        h = x.replace(self.norm2(x.feats))
+
+        # SURGERY: Remove .float() to save VRAM
+        h_feats = self.norm2(x.feats).to(orig_dtype)
+        h = x.replace(h_feats)
+        
         h = h * (1 + scale_mlp) + shift_mlp
         h = self.mlp(h)
         h = h * gate_mlp
         x = x + h
+        
         return x
 
     def forward(self, x: SparseTensor, mod: torch.Tensor) -> SparseTensor:
@@ -98,7 +112,7 @@ class ModulatedSparseTransformerCrossBlock(nn.Module):
         qk_rms_norm_cross: bool = False,
         qkv_bias: bool = True,
         share_mod: bool = False,
-
+        **kwargs
     ):
         super().__init__()
         self.use_checkpoint = use_checkpoint
@@ -140,23 +154,36 @@ class ModulatedSparseTransformerCrossBlock(nn.Module):
             self.modulation = nn.Parameter(torch.randn(6 * channels) / channels ** 0.5)
 
     def _forward(self, x: SparseTensor, mod: torch.Tensor, context: Union[torch.Tensor, VarLenTensor]) -> SparseTensor:
+        orig_dtype = x.feats.dtype
+        
         if self.share_mod:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (self.modulation + mod).type(mod.dtype).chunk(6, dim=1)
         else:
             shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.adaLN_modulation(mod).chunk(6, dim=1)
-        h = x.replace(self.norm1(x.feats))
+
+        shift_msa, scale_msa, gate_msa = shift_msa.to(orig_dtype), scale_msa.to(orig_dtype), gate_msa.to(orig_dtype)
+        shift_mlp, scale_mlp, gate_mlp = shift_mlp.to(orig_dtype), scale_mlp.to(orig_dtype), gate_mlp.to(orig_dtype)
+
+        # SURGERY: Remove .float() on all Norms
+        h_feats = self.norm1(x.feats).to(orig_dtype)
+        h = x.replace(h_feats)
         h = h * (1 + scale_msa) + shift_msa
         h = self.self_attn(h)
         h = h * gate_msa
         x = x + h
-        h = x.replace(self.norm2(x.feats))
+
+        h_feats = self.norm2(x.feats).to(orig_dtype)
+        h = x.replace(h_feats)
         h = self.cross_attn(h, context)
         x = x + h
-        h = x.replace(self.norm3(x.feats))
+
+        h_feats = self.norm3(x.feats).to(orig_dtype)
+        h = x.replace(h_feats)
         h = h * (1 + scale_mlp) + shift_mlp
         h = self.mlp(h)
         h = h * gate_mlp
         x = x + h
+        
         return x
 
     def forward(self, x: SparseTensor, mod: torch.Tensor, context: Union[torch.Tensor, VarLenTensor]) -> SparseTensor:
