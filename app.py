@@ -624,9 +624,35 @@ if __name__ == "__main__":
         icon = Image.open(MODES[i]['icon'])
         MODES[i]['icon_base64'] = image_to_base64(icon)
 
+   # Muat Pipeline
     pipeline = Trellis2ImageTo3DPipeline.from_pretrained('microsoft/TRELLIS.2-4B')
     pipeline.cuda()
-    
+
+    # 2. Fungsi Hapus Background Otomatis (Versi Stabil)
+    def auto_rembg_patch(pipeline_obj):
+        from rembg import remove
+        import numpy as np
+        from PIL import Image
+
+        def smart_preprocess(image):
+            print(">>> Mendeteksi dan menghapus background secara otomatis...")
+            # Proses penghapusan background
+            output_image = remove(image)
+            
+            # Pastikan output dalam format RGBA dan di-resize ke 1024
+            if output_image.mode != 'RGBA':
+                output_image = output_image.convert('RGBA')
+            
+            return output_image.resize((1024, 1024), resample=Image.LANCZOS)
+        
+        # Ganti fungsi bawaan pipeline
+        pipeline_obj.preprocess_image = smart_preprocess
+        print(">>> Fitur Auto-RemBG Berhasil Diaktifkan!")
+
+    # 3. Jalankan Perbaikan
+    auto_rembg_patch(pipeline)
+
+    # 4. Load HDRI (Lanjutkan seperti biasa)
     envmap = {
         'forest': EnvMap(torch.tensor(
             cv2.cvtColor(cv2.imread('assets/hdri/forest.exr', cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB),
@@ -641,5 +667,4 @@ if __name__ == "__main__":
             dtype=torch.float32, device='cuda'
         )),
     }
-    
     demo.launch(css=css, head=head)
