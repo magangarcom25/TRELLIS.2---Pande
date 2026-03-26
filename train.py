@@ -7,8 +7,8 @@ import torch.distributed as dist
 import deepspeed
 from easydict import EasyDict as edict
 from safetensors.torch import load_file
-from deepspeed.ops.adam import DeepSpeedCPUAdam
 
+# Menambahkan path agar module trellis2 terbaca
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from trellis2.models.sparse_structure_flow import SparseStructureFlowModel
@@ -20,21 +20,25 @@ def main():
     parser.add_argument('--config', type=str, required=True)
     parser.add_argument('--output_dir', type=str, required=True)
     parser.add_argument('--local_rank', type=int, default=-1)
+    
     parser = deepspeed.add_config_arguments(parser)
     opt = parser.parse_args()
 
-    # 0. Load Config
+    # 0. Load Configs
     with open(opt.config, 'r') as f:
         cfg = edict(json.load(f))
+    
+    with open(opt.deepspeed_config, 'r') as f:
+        ds_cfg = json.load(f)
     
     os.makedirs(opt.output_dir, exist_ok=True)
     if not dist.is_initialized():
         deepspeed.init_distributed()
     
     dtype = torch.float32 
-    target_steps = cfg.trainer.args.get('max_steps', 1000)
+    target_steps = cfg.trainer.args.get('max_steps', 5000)
 
-    # 1. DinoV2 Setup
+    # 1. DinoV2 Setup (Frozen)
     print(f"[*] Loading DINOv2 Feature Extractor...")
     model_dinov2 = DinoV2FeatureExtractor("dinov2_vitb14").to(dtype).cuda()
     model_dinov2.eval()
@@ -54,34 +58,22 @@ def main():
     ckpt_path = "ckpts/slat_flow_img2shape_dit_600M_ms1024.safetensors"
     if os.path.exists(ckpt_path):
         print(f"[*] Loading Weights from {ckpt_path}...")
-        try:
-            state_dict = load_file(ckpt_path)
-            model_slat.load_state_dict(state_dict, strict=False)
-        except Exception as e:
-            print(f"[!] Info: {e}. Output layers will be fine-tuned.")
+        state_dict = load_file(ckpt_path)
+        model_slat.load_state_dict(state_dict, strict=False)
 
-    # 3. Optimized Optimizer for CPU Offload
-    opt_cfg = cfg.trainer.args.get('optimizer', {'args': {'lr': 5e-5}})
+    # 3. Initialize DeepSpeed
+    # PERBAIKAN: Kita mematikan 'static_graph' jika model punya dynamic structure
+    # atau weight sharing yang rumit.
     trainable_params = [p for p in model_slat.parameters() if p.requires_grad]
     
-    # DeepSpeedCPUAdam wajib digunakan jika memakai Zero-Offload
-    optimizer_obj = DeepSpeedCPUAdam(
-        trainable_params, 
-        lr=opt_cfg.get('args', {}).get('lr', 5e-5),
-        betas=opt_cfg.get('args', {}).get('betas', (0.9, 0.999)),
-        eps=opt_cfg.get('args', {}).get('eps', 1e-8),
-        weight_decay=opt_cfg.get('args', {}).get('weight_decay', 0.01)
-    )
-
-    print(f"[*] Initializing DeepSpeed Stage 2 with Optimized CPU Adam...")
+    print(f"[*] Initializing DeepSpeed Stage 1 (Fixing shared parameters)...")
     model_engine, optimizer, _, _ = deepspeed.initialize(
         args=opt, 
         model=model_slat, 
-        model_parameters=trainable_params,
-        optimizer=optimizer_obj
+        model_parameters=trainable_params
     )
 
-    # Patch Forward
+    # Patch Forward untuk Trainer
     orig_forward = model_engine.forward
     def patched_forward(*args, **kwargs):
         outputs = orig_forward(*args, **kwargs)
@@ -104,16 +96,17 @@ def main():
         **cfg.trainer.args
     )
     
-    trainer.max_steps = target_steps
+    # 5. Safety Hack: Matikan sinkronisasi gradien manual jika DeepSpeed error
+    # Ini memaksa engine untuk menunggu backward selesai sepenuhnya.
+    if hasattr(model_engine, 'set_train_batch_size'):
+        model_engine.set_train_batch_size(ds_cfg.get('train_micro_batch_size_per_gpu', 1) * ds_cfg.get('gradient_accumulation_steps', 1))
 
     if dist.get_rank() == 0:
         print("\n" + "="*60)
-        print(f"   TRELLIS 2: RECONSTRUCTION STARTING")
-        print(f"   Mode: DeepSpeed ZeRO Stage 2 + CPU Adam")
-        print(f"   Target: {target_steps} steps")
+        print(f"   GANESHA RECONSTRUCTION: RUNNING")
+        print(f"   Target: {target_steps} steps | Stage: ZeRO-1")
         print("="*60 + "\n")
     
-    # 5. Run
     trainer.run()
 
 if __name__ == '__main__':
