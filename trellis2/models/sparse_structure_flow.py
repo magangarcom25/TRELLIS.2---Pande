@@ -1,102 +1,95 @@
-from typing import *
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
-from ..modules.transformer import AbsolutePositionEmbedder, ModulatedTransformerCrossBlock
+from typing import *
+from trellis2.models.base import BaseModel
+from trellis2.modules import sparse as sp
 
-class TimestepEmbedder(nn.Module):
-    def __init__(self, hidden_size, frequency_embedding_size=256):
+class SparseResBlock(nn.Module):
+    def __init__(self, channels, emb_channels):
         super().__init__()
-        self.mlp = nn.Sequential(
-            nn.Linear(frequency_embedding_size, hidden_size, bias=True),
+        self.gn1 = sp.SparseGroupNorm(32, channels)
+        self.act = nn.SiLU() 
+        self.conv1 = sp.SparseConv3d(channels, channels, kernel_size=3, padding=None)
+        
+        self.emb_layers = nn.Sequential(
             nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size, bias=True),
+            nn.Linear(emb_channels, channels)
         )
-        self.frequency_embedding_size = frequency_embedding_size
+        
+        self.gn2 = sp.SparseGroupNorm(32, channels)
+        self.conv2 = sp.SparseConv3d(channels, channels, kernel_size=3, padding=None)
 
-    @staticmethod
-    def timestep_embedding(t, dim, max_period=10000):
-        half = dim // 2
-        freqs = torch.exp(-np.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half).to(t.device)
-        args = t[:, None].float() * freqs[None]
-        embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
-        if dim % 2:
-            embedding = torch.cat([embedding, torch.zeros_like(embedding[:, :1])], dim=-1)
-        return embedding
+    def forward(self, x: sp.SparseTensor, emb: torch.Tensor) -> sp.SparseTensor:
+        target_dtype = x.feats.dtype
+        target_device = x.feats.device
 
-    def forward(self, t):
-        return self.mlp(self.timestep_embedding(t, self.frequency_embedding_size))
+        # Block 1
+        h_norm = self.gn1(x)
+        h_feats = self.act(h_norm.feats)
+        h = sp.SparseTensor(feats=h_feats, coords=x.coords, shape=x.shape)
+        h = self.conv1(h)
+        
+        # Timestep Embedding
+        emb_out = self.emb_layers(emb.to(device=target_device, dtype=target_dtype))
+        h = sp.SparseTensor(
+            feats=h.feats + emb_out[h.coords[:, 0]], 
+            coords=h.coords, 
+            shape=h.shape
+        )
+        
+        # Block 2
+        h_norm2 = self.gn2(h)
+        h_feats2 = self.act(h_norm2.feats)
+        h = sp.SparseTensor(feats=h_feats2, coords=h.coords, shape=h.shape)
+        h = self.conv2(h)
+        
+        return sp.SparseTensor(feats=x.feats + h.feats, coords=x.coords, shape=x.shape)
 
-class SparseOutput:
-    def __init__(self, feats):
-        self.feats = feats
 
-class SparseStructureFlowModel(nn.Module):
-    def __init__(self, resolution, in_channels, model_channels, cond_channels, out_channels, num_blocks, **kwargs):
+class SparseStructureFlowModel(BaseModel):
+    def __init__(self, resolution, in_channels, model_channels, out_channels, num_res_blocks=12, **kwargs):
         super().__init__()
         self.resolution = resolution
+        self.in_channels = in_channels 
         self.out_channels = out_channels
         
-        # ADAPTERS: Sinkronisasi 32-ch Dataset <-> 8-ch Checkpoint
-        self.input_adapter = nn.Linear(in_channels, 8)
-        self.output_adapter = nn.Linear(8, out_channels)
-
-        self.t_embedder = TimestepEmbedder(model_channels)
-        self.input_layer = nn.Linear(8, 128) 
-        self.proj_in = nn.Linear(128, model_channels)
-        self.cond_proj = nn.Linear(cond_channels, model_channels)
+        self.time_in = nn.Linear(1, model_channels) 
+        self.time_embed = nn.Sequential(
+            nn.Linear(model_channels, model_channels * 4),
+            nn.SiLU(),
+            nn.Linear(model_channels * 4, model_channels),
+        )
         
-        pos_embedder = AbsolutePositionEmbedder(model_channels, 3)
-        coords = torch.meshgrid(*[torch.arange(res) for res in [resolution] * 3], indexing='ij')
-        coords = torch.stack(coords, dim=-1).reshape(-1, 3).float()
-        self.register_buffer("pos_emb", pos_embedder(coords))
-
-        self.blocks = nn.ModuleList([
-            ModulatedTransformerCrossBlock(model_channels, model_channels, num_heads=kwargs.get('num_heads', 16), mlp_ratio=4, use_checkpoint=True)
-            for _ in range(num_blocks)
+        self.input_layer = sp.SparseConv3d(in_channels, model_channels, kernel_size=3, padding=None)
+        self.res_blocks = nn.ModuleList([
+            SparseResBlock(model_channels, model_channels) for _ in range(num_res_blocks)
         ])
+        
+        self.gn_out = sp.SparseGroupNorm(32, model_channels)
+        self.act_out = nn.SiLU()
+        self.out_layer = sp.SparseConv3d(model_channels, out_channels, kernel_size=3, padding=None)
 
-        self.proj_out = nn.Linear(model_channels, 128)
-        self.out_layer = nn.Linear(128, 8)
+    def forward(self, x: sp.SparseTensor, t: torch.Tensor, cond: dict = None) -> sp.SparseTensor:
+        param = next(self.parameters())
+        master_device = param.device
+        master_dtype = param.dtype
 
-    def forward(self, x: Any, t: torch.Tensor, cond: torch.Tensor) -> Any:
-        if isinstance(x, dict):
-            x_data = x.get('feats', x.get('features', next(iter(x.values()))))
-            coords = x.get('coords', None)
+        if x.feats.shape[-1] != self.in_channels:
+            feats = x.feats[:, :self.in_channels].contiguous().to(device=master_device, dtype=master_dtype)
         else:
-            x_data = getattr(x, 'features', getattr(x, 'feats', x))
-            coords = getattr(x, 'indices', getattr(x, 'coords', None))
+            feats = x.feats.to(device=master_device, dtype=master_dtype)
 
-        B, R = t.shape[0], self.resolution
-        ref_dtype = self.proj_in.weight.dtype
+        x_sparse = sp.SparseTensor(feats=feats, coords=x.coords.to(master_device), shape=x.shape)
 
-        with torch.amp.autocast('cuda', enabled=True, dtype=ref_dtype):
-            if coords is not None:
-                actual_feats = x_data.features if hasattr(x_data, 'features') else x_data
-                feats_8 = self.input_adapter(actual_feats.to(ref_dtype))
-                h_dense = torch.zeros((B, 8, R, R, R), device=t.device, dtype=ref_dtype)
-                c = coords.long()
-                h_dense[c[:, 0], :, c[:, 1], c[:, 2], c[:, 3]] = feats_8
-                h = h_dense.flatten(2).permute(0, 2, 1).contiguous()
-            else:
-                h = self.input_adapter(x_data.to(ref_dtype)).flatten(2).permute(0, 2, 1).contiguous()
+        if t.ndim == 1: t = t.unsqueeze(-1)
+        t_emb = self.time_embed(self.time_in(t.to(device=master_device, dtype=master_dtype)))
 
-            h = self.proj_in(self.input_layer(h))
-            h_cond = self.cond_proj(cond.to(ref_dtype))
-            t_emb = self.t_embedder(t).to(ref_dtype)
+        h = self.input_layer(x_sparse)
+        for block in self.res_blocks:
+            h = block(h, t_emb)
             
-            for block in self.blocks:
-                h = block(h + self.pos_emb[None].to(h.dtype), t_emb, h_cond)
-
-            h = self.out_layer(self.proj_out(F.layer_norm(h, h.shape[-1:])))
-
-        h_32 = self.output_adapter(h)
-        out_dense = h_32.permute(0, 2, 1).view(B, self.out_channels, R, R, R)
+        h = self.gn_out(h)
+        h_final_feats = self.act_out(h.feats)
+        h = sp.SparseTensor(feats=h_final_feats, coords=h.coords, shape=h.shape)
         
-        if coords is not None:
-            c = coords.long()
-            out_sparse = out_dense[c[:, 0], :, c[:, 1], c[:, 2], c[:, 3]]
-            return SparseOutput(out_sparse.to(ref_dtype))
-        
-        return SparseOutput(out_dense.to(ref_dtype))
+        return self.out_layer(h)

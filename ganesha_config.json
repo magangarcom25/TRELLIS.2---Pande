@@ -1,27 +1,10 @@
 {
-    "models": {
-        "trainer": {
-            "args": {
-                "batch_size": 1,
-                "accumulate_grad_batches": 32, 
-                "fp16_mode": "bf16",
-                "gradient_checkpointing": true,
-                "optimizer": {
-                    "name": "DeepSpeedCPUAdam",
-                    "args": { 
-                        "lr": 4e-5,
-                        "offload_optimizer_states": true,
-                        "offload_params": false
-                    } 
-                }
-            }
-        },
-        "image_cond_model": {
-            "name": "dinov2",
-            "args": {
-                "model_name": "dinov2_vitb14"
-            }
-        }
+    "model": {
+        "resolution": 32,
+        "in_channels": 8,
+        "model_channels": 128,
+        "out_channels": 8,
+        "num_res_blocks": 12
     },
     "dataset": {
         "name": "ImageConditionedSLat",
@@ -34,11 +17,12 @@
         "name": "ImageConditionedSparseFlowMatchingCFGTrainer",
         "args": {
             "use_cfg": false,
-            "max_steps": 5000,
+            "max_steps": 500,
             "batch_size": 1,
             "accumulate_grad_batches": 32, 
             "fp16_mode": "bf16",
             "gradient_checkpointing": true,
+            "save_every": 100,
             "optimizer": {
                 "name": "DeepSpeedCPUAdam",
                 "args": { 
