@@ -1,0 +1,647 @@
+Parameters:
+================================================================================================================================
+Name                                                                    Shape                           Type            Grad
+t_embedder.mlp.0.weight                                                 torch.Size([1536, 256])         torch.float32   True
+t_embedder.mlp.0.bias                                                   torch.Size([1536])              torch.float32   True
+t_embedder.mlp.2.weight                                                 torch.Size([1536, 1536])        torch.float32   True
+t_embedder.mlp.2.bias                                                   torch.Size([1536])              torch.float32   True
+adaLN_modulation.1.weight                                               torch.Size([9216, 1536])        torch.float32   True
+adaLN_modulation.1.bias                                                 torch.Size([9216])              torch.float32   True
+input_layer.weight                                                      torch.Size([1536, 32])          torch.float32   True
+input_layer.bias                                                        torch.Size([1536])              torch.float32   True
+blocks.0.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.0.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.0.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.0.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.0.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.0.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.0.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.0.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.0.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.0.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.0.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.0.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.0.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.0.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.0.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.0.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.0.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.0.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.0.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.0.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.0.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.1.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.1.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.1.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.1.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.1.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.1.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.1.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.1.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.1.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.1.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.1.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.1.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.1.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.1.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.1.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.1.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.1.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.1.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.1.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.1.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.1.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.2.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.2.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.2.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.2.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.2.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.2.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.2.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.2.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.2.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.2.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.2.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.2.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.2.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.2.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.2.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.2.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.2.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.2.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.2.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.2.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.2.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.3.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.3.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.3.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.3.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.3.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.3.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.3.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.3.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.3.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.3.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.3.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.3.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.3.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.3.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.3.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.3.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.3.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.3.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.3.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.3.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.3.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.4.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.4.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.4.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.4.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.4.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.4.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.4.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.4.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.4.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.4.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.4.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.4.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.4.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.4.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.4.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.4.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.4.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.4.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.4.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.4.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.4.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.5.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.5.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.5.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.5.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.5.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.5.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.5.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.5.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.5.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.5.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.5.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.5.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.5.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.5.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.5.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.5.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.5.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.5.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.5.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.5.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.5.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.6.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.6.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.6.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.6.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.6.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.6.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.6.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.6.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.6.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.6.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.6.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.6.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.6.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.6.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.6.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.6.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.6.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.6.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.6.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.6.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.6.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.7.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.7.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.7.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.7.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.7.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.7.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.7.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.7.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.7.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.7.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.7.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.7.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.7.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.7.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.7.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.7.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.7.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.7.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.7.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.7.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.7.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.8.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.8.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.8.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.8.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.8.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.8.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.8.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.8.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.8.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.8.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.8.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.8.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.8.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.8.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.8.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.8.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.8.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.8.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.8.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.8.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.8.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.9.modulation                                                     torch.Size([9216])              torch.float32   True
+blocks.9.norm2.weight                                                   torch.Size([1536])              torch.float32   True
+blocks.9.norm2.bias                                                     torch.Size([1536])              torch.float32   True
+blocks.9.self_attn.to_qkv.weight                                        torch.Size([4608, 1536])        torch.float32   True
+blocks.9.self_attn.to_qkv.bias                                          torch.Size([4608])              torch.float32   True
+blocks.9.self_attn.q_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.9.self_attn.k_rms_norm.gamma                                     torch.Size([12, 128])           torch.float32   True
+blocks.9.self_attn.to_out.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.9.self_attn.to_out.bias                                          torch.Size([1536])              torch.float32   True
+blocks.9.cross_attn.to_q.weight                                         torch.Size([1536, 1536])        torch.float32   True
+blocks.9.cross_attn.to_q.bias                                           torch.Size([1536])              torch.float32   True
+blocks.9.cross_attn.to_kv.weight                                        torch.Size([3072, 1024])        torch.float32   True
+blocks.9.cross_attn.to_kv.bias                                          torch.Size([3072])              torch.float32   True
+blocks.9.cross_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.9.cross_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.9.cross_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.9.cross_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.9.mlp.mlp.0.weight                                               torch.Size([8192, 1536])        torch.float32   True
+blocks.9.mlp.mlp.0.bias                                                 torch.Size([8192])              torch.float32   True
+blocks.9.mlp.mlp.2.weight                                               torch.Size([1536, 8192])        torch.float32   True
+blocks.9.mlp.mlp.2.bias                                                 torch.Size([1536])              torch.float32   True
+blocks.10.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.10.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.10.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.10.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.10.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.10.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.10.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.10.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.10.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.10.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.10.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.10.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.10.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.10.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.10.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.10.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.10.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.10.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.10.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.10.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.10.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.11.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.11.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.11.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.11.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.11.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.11.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.11.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.11.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.11.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.11.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.11.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.11.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.11.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.11.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.11.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.11.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.11.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.11.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.11.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.11.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.11.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.12.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.12.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.12.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.12.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.12.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.12.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.12.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.12.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.12.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.12.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.12.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.12.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.12.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.12.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.12.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.12.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.12.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.12.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.12.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.12.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.12.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.13.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.13.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.13.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.13.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.13.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.13.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.13.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.13.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.13.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.13.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.13.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.13.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.13.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.13.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.13.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.13.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.13.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.13.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.13.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.13.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.13.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.14.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.14.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.14.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.14.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.14.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.14.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.14.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.14.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.14.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.14.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.14.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.14.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.14.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.14.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.14.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.14.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.14.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.14.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.14.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.14.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.14.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.15.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.15.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.15.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.15.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.15.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.15.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.15.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.15.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.15.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.15.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.15.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.15.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.15.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.15.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.15.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.15.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.15.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.15.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.15.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.15.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.15.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.16.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.16.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.16.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.16.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.16.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.16.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.16.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.16.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.16.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.16.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.16.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.16.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.16.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.16.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.16.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.16.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.16.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.16.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.16.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.16.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.16.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.17.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.17.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.17.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.17.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.17.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.17.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.17.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.17.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.17.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.17.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.17.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.17.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.17.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.17.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.17.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.17.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.17.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.17.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.17.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.17.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.17.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.18.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.18.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.18.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.18.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.18.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.18.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.18.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.18.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.18.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.18.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.18.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.18.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.18.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.18.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.18.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.18.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.18.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.18.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.18.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.18.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.18.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.19.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.19.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.19.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.19.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.19.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.19.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.19.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.19.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.19.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.19.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.19.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.19.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.19.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.19.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.19.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.19.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.19.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.19.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.19.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.19.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.19.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.20.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.20.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.20.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.20.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.20.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.20.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.20.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.20.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.20.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.20.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.20.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.20.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.20.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.20.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.20.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.20.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.20.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.20.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.20.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.20.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.20.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.21.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.21.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.21.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.21.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.21.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.21.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.21.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.21.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.21.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.21.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.21.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.21.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.21.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.21.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.21.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.21.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.21.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.21.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.21.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.21.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.21.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.22.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.22.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.22.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.22.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.22.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.22.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.22.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.22.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.22.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.22.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.22.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.22.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.22.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.22.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.22.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.22.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.22.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.22.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.22.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.22.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.22.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.23.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.23.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.23.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.23.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.23.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.23.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.23.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.23.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.23.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.23.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.23.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.23.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.23.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.23.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.23.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.23.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.23.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.23.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.23.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.23.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.23.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.24.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.24.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.24.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.24.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.24.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.24.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.24.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.24.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.24.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.24.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.24.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.24.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.24.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.24.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.24.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.24.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.24.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.24.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.24.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.24.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.24.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.25.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.25.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.25.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.25.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.25.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.25.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.25.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.25.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.25.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.25.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.25.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.25.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.25.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.25.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.25.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.25.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.25.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.25.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.25.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.25.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.25.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.26.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.26.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.26.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.26.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.26.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.26.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.26.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.26.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.26.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.26.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.26.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.26.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.26.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.26.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.26.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.26.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.26.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.26.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.26.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.26.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.26.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.27.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.27.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.27.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.27.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.27.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.27.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.27.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.27.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.27.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.27.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.27.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.27.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.27.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.27.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.27.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.27.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.27.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.27.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.27.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.27.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.27.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.28.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.28.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.28.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.28.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.28.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.28.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.28.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.28.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.28.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.28.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.28.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.28.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.28.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.28.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.28.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.28.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.28.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.28.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.28.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.28.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.28.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+blocks.29.modulation                                                    torch.Size([9216])              torch.float32   True
+blocks.29.norm2.weight                                                  torch.Size([1536])              torch.float32   True
+blocks.29.norm2.bias                                                    torch.Size([1536])              torch.float32   True
+blocks.29.self_attn.to_qkv.weight                                       torch.Size([4608, 1536])        torch.float32   True
+blocks.29.self_attn.to_qkv.bias                                         torch.Size([4608])              torch.float32   True
+blocks.29.self_attn.q_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.29.self_attn.k_rms_norm.gamma                                    torch.Size([12, 128])           torch.float32   True
+blocks.29.self_attn.to_out.weight                                       torch.Size([1536, 1536])        torch.float32   True
+blocks.29.self_attn.to_out.bias                                         torch.Size([1536])              torch.float32   True
+blocks.29.cross_attn.to_q.weight                                        torch.Size([1536, 1536])        torch.float32   True
+blocks.29.cross_attn.to_q.bias                                          torch.Size([1536])              torch.float32   True
+blocks.29.cross_attn.to_kv.weight                                       torch.Size([3072, 1024])        torch.float32   True
+blocks.29.cross_attn.to_kv.bias                                         torch.Size([3072])              torch.float32   True
+blocks.29.cross_attn.q_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.29.cross_attn.k_rms_norm.gamma                                   torch.Size([12, 128])           torch.float32   True
+blocks.29.cross_attn.to_out.weight                                      torch.Size([1536, 1536])        torch.float32   True
+blocks.29.cross_attn.to_out.bias                                        torch.Size([1536])              torch.float32   True
+blocks.29.mlp.mlp.0.weight                                              torch.Size([8192, 1536])        torch.float32   True
+blocks.29.mlp.mlp.0.bias                                                torch.Size([8192])              torch.float32   True
+blocks.29.mlp.mlp.2.weight                                              torch.Size([1536, 8192])        torch.float32   True
+blocks.29.mlp.mlp.2.bias                                                torch.Size([1536])              torch.float32   True
+out_layer.weight                                                        torch.Size([32, 1536])          torch.float32   True
+out_layer.bias                                                          torch.Size([32])                torch.float32   True
+
+Number of parameters: 1292253728
+Number of trainable parameters: 1292253728
+

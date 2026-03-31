@@ -1,0 +1,67 @@
+{
+    "models": {
+        "denoiser": {
+            "name": "ElasticSLatFlowModel",
+            "args": {
+                "resolution": 32,
+                "in_channels": 32,
+                "out_channels": 32,
+                "model_channels": 1536,
+                "cond_channels": 1024,
+                "num_blocks": 30,
+                "num_heads": 12,
+                "mlp_ratio": 5.3334,
+                "pe_mode": "rope",
+                "share_mod": true,
+                "initialization": "scaled",
+                "qk_rms_norm": true,
+                "qk_rms_norm_cross": true
+            }
+        }
+    },
+    "dataset": {
+        "name": "ImageConditionedSLatShape",
+        "args": {
+            "resolution": 512,
+            "image_size": 512,
+            "min_aesthetic_score": 0.0,
+            "max_tokens": 8192,
+            "pretrained_slat_dec": "/home/pande/TRELLIS.2---Pande/ckpts/shape_dec_next_dc_f16c32_fp16.safetensors"
+        }
+    },
+    "trainer": {
+        "name": "ImageConditionedSparseFlowMatchingCFGTrainer",
+        "args": {
+            "max_steps": 5000,
+            "batch_size_per_gpu": 1,
+            "batch_split": 1,
+            "optimizer": {
+                "name": "AdamW",
+                "args": {
+                    "lr": 5e-05,
+                    "weight_decay": 0.01,
+                    "betas": [
+                        0.9,
+                        0.95
+                    ],
+                    "eps": 1e-08
+                }
+            },
+            "ema_rate": [
+                0.9999
+            ],
+            "mix_precision_mode": "amp",
+            "mix_precision_dtype": "bfloat16",
+            "i_log": 10,
+            "i_sample": 100,
+            "i_save": 500,
+            "image_cond_model": {
+                "name": "DinoV3FeatureExtractor",
+                "args": {
+                    "model_name": "/home/pande/.cache/huggingface/hub/models--facebook--dinov3-vitl16-pretrain-lvd1689m/snapshots/ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                    "image_size": 512
+                }
+            }
+        }
+    }
+}
